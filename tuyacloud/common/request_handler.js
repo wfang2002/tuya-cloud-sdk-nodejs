@@ -8,7 +8,7 @@ const Sign = require("./sign");
 const HttpMethod = require("./http_method");
 
 const retry = require('async-await-retry');
-
+const crypto = require('crypto');
 
 /**
  * 请求处理类
@@ -93,7 +93,7 @@ class RequestHandler {
         }
 
         // headers
-        await this.getHeader(withToken, {}).then(data => {
+        await this.getHeader(withToken, {}, request).then(data => {
             req.headers = JSON.parse(data);
         });
 
@@ -127,18 +127,24 @@ class RequestHandler {
      * @param opt 自定义header
      * @returns {{t: *, sign_method: *, sign: *, client_id: *}}
      */
-     static async getHeader(withToken, opt) {
+     static async getHeader(withToken, opt, request) {
         let headers = {
             client_id: global.accessId,
             t: new Date().getTime(),
             sign_method: "HMAC-SHA256",
         };
 
+        const path = request.getRequestUrl();
+        const method = request.getRequestMethod().getName();
+        const url = request.getRequestUrl();
+        const body = (request instanceof ApiRequestBody) ? JSON.stringify(request.getRequestBody()) : '';
+        const contentHash = crypto.createHash('sha256').update('').digest('hex');
+        const stringToSign = [method, contentHash, '', url].join('\n');
         if (withToken) {
             headers.access_token = await TokenCache.getToken();
-            headers.sign = this.calcSign(global.accessId, global.accessKey, headers.t, headers.access_token, true);
+            headers.sign = this.calcSign(global.accessId, global.accessKey, headers.t, headers.access_token, stringToSign, true);
         } else {
-            headers.sign = this.calcSign(global.accessId, global.accessKey, headers.t, null, false);
+            headers.sign = this.calcSign(global.accessId, global.accessKey, headers.t, null, stringToSign, false);
         }
 
         Object.assign(headers, opt);
@@ -157,12 +163,11 @@ class RequestHandler {
      * @param withToken
      * @returns {string}
      */
-    static calcSign(accessId, secret, t, accessToken, withToken) {
-        let message = accessId + t;
+    static calcSign(accessId, secret, t, accessToken, stringToSign, withToken) {
+        let message = accessId + t + stringToSign;
         if (withToken) {
-            message = accessId + accessToken + t;
+            message = accessId + accessToken + t + stringToSign;
         }
-
         return Sign.encrytSHA256(message, secret);
     }
 
