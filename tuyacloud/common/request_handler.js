@@ -125,6 +125,7 @@ class RequestHandler {
      *
      * @param withToken 是否携带token
      * @param opt 自定义header
+     * @param request The request model
      * @returns {{t: *, sign_method: *, sign: *, client_id: *}}
      */
      static async getHeader(withToken, opt, request) {
@@ -137,8 +138,8 @@ class RequestHandler {
         const path = request.getRequestUrl();
         const method = request.getRequestMethod().getName();
         const url = request.getRequestUrl();
-        const body = (request instanceof ApiRequestBody) ? JSON.stringify(request.getRequestBody()) : '';
-        const contentHash = crypto.createHash('sha256').update('').digest('hex');
+        const body = (request instanceof ApiRequestBody) ? request.getRequestBody() : '';
+        const contentHash = crypto.createHash('sha256').update(body).digest('hex');
         const stringToSign = [method, contentHash, '', url].join('\n');
         if (withToken) {
             headers.access_token = await TokenCache.getToken();

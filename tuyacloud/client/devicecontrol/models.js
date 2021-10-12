@@ -69,9 +69,10 @@ class GetDeviceListReq extends ApiRequest {
  */
 class PostDeviceCommandReq extends ApiRequestBody {
 
-    constructor(deviceId) {
+    constructor(deviceId, commands) {
         super();
-        this.deviceId = deviceId
+        this.deviceId = deviceId;
+        this.commands = { commands }
     }
 
     getRequestUrl() {
@@ -80,6 +81,10 @@ class PostDeviceCommandReq extends ApiRequestBody {
 
     getRequestMethod() {
         return HttpMethod.POST;
+    }
+
+    getRequestBody() {
+        return JSON.stringify(this.commands);
     }
 
 }
