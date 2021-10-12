@@ -46,7 +46,7 @@ class GetDevicesReq extends ApiRequest {
 /**
  * 获取用户下设备列表
  */
-class GetUserDevicesReq extends ApiRequest {
+class GetDeviceListByUidReq extends ApiRequest {
     constructor(uid) {
         super();
         this.uid = uid
@@ -302,7 +302,7 @@ module.exports = {
     GetDeviceReq: GetDeviceReq,
     GetDeviceFunctionsReq: GetDeviceFunctionsReq,
     DeleteDeviceReq: DeleteDeviceReq,
-    GetUserDevicesReq: GetUserDevicesReq,
+    GetDeviceListByUidReq: GetDeviceListByUidReq,
     GetDevicesReq: GetDevicesReq,
     UpdateDeviceFunctionCodeReq: UpdateDeviceFunctionCodeReq,
     GetDeviceLogsReq: GetDeviceLogsReq,
