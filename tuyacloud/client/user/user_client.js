@@ -31,6 +31,7 @@ class UserClient {
     }
 
     static getUserInfo(uid, callback) {
+        RequestHandler.sendRequestWithToken(new Models.getUserInfoReq(uid), callback);
 
     }
 }
